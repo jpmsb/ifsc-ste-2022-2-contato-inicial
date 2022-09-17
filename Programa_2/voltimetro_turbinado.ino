@@ -58,17 +58,17 @@ void loop() {
       if (b == 1 ) {
         if (processo_anterior == PROCESSA_V){
           estado = PROCESSA_mV;
-          processo_anterior = PROCESSA_mV;
         
         } else if (processo_anterior == PROCESSA_mV) {
           estado = PROCESSA_V;
-          processo_anterior = PROCESSA_V;
+
         }
       } else {
         estado = processo_anterior;
       }
-      
 
+      processo_anterior = estado;
+      
       attachInterrupt(digitalPinToInterrupt(3), botao_isr, RISING);
       break;
 
