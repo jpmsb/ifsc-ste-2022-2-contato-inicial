@@ -33,7 +33,11 @@ void setup() {
 }
 
 unsigned long medida;
-State_t processo_anterior = PROCESSA_V;
+unsigned long parte_decimal = 0;
+unsigned long parte_inteira = 0;
+
+State_t processo_atual = PROCESSA_V;
+
 int a0 = 0;
 int botao_hold = 0;
 
@@ -56,18 +60,18 @@ void loop() {
       botao_hold = digitalRead(2);
 
       if (b == 1 ) {
-        if (processo_anterior == PROCESSA_V){
+        if (processo_atual == PROCESSA_V){
           estado = PROCESSA_mV;
         
-        } else if (processo_anterior == PROCESSA_mV) {
+        } else if (processo_atual == PROCESSA_mV) {
           estado = PROCESSA_V;
 
         }
       } else {
-        estado = processo_anterior;
+        estado = processo_atual;
       }
 
-      processo_anterior = estado;
+      processo_atual = estado;
       
       attachInterrupt(digitalPinToInterrupt(3), botao_isr, RISING);
       break;
@@ -77,7 +81,9 @@ void loop() {
         estado = WAIT;
       } else {
         estado = IMPRIME_SAIDA;
-        medida = (((long) analogRead(A0)) * ((long) 5000000 / (long) 1023)) / 1000000;
+        medida = (((long) analogRead(A0)) * ((long) 5000000 / (long) 1023)) / 1000;
+        parte_inteira = medida / 1000;
+        parte_decimal = medida - (parte_inteira * 1000); 
       }
       break;
 
@@ -92,7 +98,13 @@ void loop() {
 
     case IMPRIME_SAIDA: 
       estado = WAIT;
-      Serial.println(medida);
+
+      if (processo_atual == PROCESSA_V) {
+        Serial.print(parte_inteira);
+        Serial.print(",");
+        Serial.println(parte_decimal);
+      }
+      else Serial.println(medida);
       break;
   }
 }
